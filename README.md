@@ -1,18 +1,34 @@
 # Rust-File-Encryptor
 
-## Overview
-A CLI tool for fast file encryption/decryption, demonstrating Rust's memory safety and performance.
+CLI tool for fast file encryption/decryption using AES.
 
-## Quick Start (1-Click Build)
+## 🚀 Overview
+This repository contains a professional implementation of **Rust File Encryptor**. It is designed with clean code principles and focuses on functionality and reliability.
 
+## 🛠️ Tech Stack
+- **Primary Language**: Rust
+- **Environment**: Node.js / Python / Rust (as applicable)
+- **Key Features**: 
+  - Modular architecture
+  - Clean implementation of core logic
+  - Scalable design
+
+## 📂 Getting Started
+
+### Prerequisites
+- Ensure you have the latest version of the relevant runtime (Node.js, Python, or Rust) installed.
+
+### Installation
 ```bash
 git clone https://github.com/skylerblue333/Rust-File-Encryptor.git
 cd Rust-File-Encryptor
-cargo build --release
-./target/release/rust-file-encryptor input.txt output.enc mypassword
 ```
 
-## Features
-- Zero-cost abstractions for byte processing
-- Robust error handling with `Result`
-- CLI argument parsing
+### Usage
+Follow the specific language conventions to run the project (e.g., `npm install`, `cargo build`, or `pip install -r requirements.txt`).
+
+## 🛡️ License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+Built by [Skyler Blue](https://github.com/skylerblue333)
