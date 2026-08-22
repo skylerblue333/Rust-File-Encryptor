@@ -1,44 +1,32 @@
-<!-- PORTFOLIO PROJECT PROFILE: maintained by the repository owner -->
-
-## Project profile and code-audit snapshot
-
-**What this is:** **Rust-File-Encryptor** is a public repository described as: “CLI tool for fast file encryption/decryption using AES. #SkyCoin4444 #AI #Blockchain #DevOps #Innovation” Its dominant language signals are **Rust (1 files)**.
-
-**Why it has value:** Its value is best understood through the implementation evidence currently present in the repository: **15 tracked files** were observed in the shallow audit, with the source structure and existing documentation providing the project’s specific context. This README does not treat a prototype, experiment, or archive as a production system without supporting evidence.
-
-**Implementation evidence:** No test-related file was detected by filename heuristics.; 2 dependency or package manifest(s) detected; 2 build/CI/infrastructure signal(s) detected; and 3 documentation or governance file(s) detected. Test filenames observed include none detected. Dependency or package files include `Cargo.toml`, `package.json`. Build, CI, or infrastructure signals include `Dockerfile`, `.github/workflows/ci.yml`.
-
-**Current status:** The repository is tracked on the `main` branch. The existing source tree, configuration, tests, workflows, and documentation remain authoritative for supported behavior and maturity. A code audit is not a production-readiness certification, and the presence of a test or workflow file does not establish that all checks pass.
-
-**Relationship to the wider portfolio:** This repository is one focused component of the broader Skyler Blue Spillers portfolio across AI, software engineering, cloud and DevOps, cybersecurity, blockchain, finance, education, social systems, and creative work. It may provide a service boundary, implementation pattern, experiment, archive, or reusable idea for related repositories. Treat repositories as technical dependencies only where documented interfaces and verified project requirements support that relationship.
-
-**Quality and security note:** No obvious secret-like pattern was detected by the limited static scan; this is not a substitute for a security audit. No TODO/FIXME marker was detected in the scanned text files.
-
----
-
 # Rust File Encryptor
 
-![GitHub stars](https://img.shields.io/github/stars/skylerblue333/Rust-File-Encryptor?style=flat-square)
-![GitHub license](https://img.shields.io/github/license/skylerblue333/Rust-File-Encryptor?style=flat-square)
+A small, local command-line utility for authenticated file encryption and decryption using AES-256-GCM. It is a focused security component, not a complete key-management or enterprise-custody product.
 
-## 🌟 Overview
-**Rust-File-Encryptor** is a professional-grade project within the **SkyCoin4444** ecosystem. It focuses on delivering high-value solutions in the domain of **Rust**.
+## Implemented behavior
 
-## 🚀 Key Features
-- **Scalable Architecture**: Designed for enterprise-level growth and performance.
-- **Modern Standards**: Implements best practices for clean code and maintainability.
-- **Robust Integration**: Built to work seamlessly within modern cloud-native environments.
+The binary supports `encrypt` and `decrypt` commands, generates a fresh 96-bit nonce for every encryption, authenticates ciphertext during decryption, rejects tampered or truncated files, refuses to overwrite an existing output, and requires a 32-byte key supplied through the `FILE_ENCRYPTOR_KEY` environment variable as 64 hexadecimal characters.
 
-## 🛠️ Technology Stack
-- **Primary Domain**: Rust
-- **Ecosystem**: SkyCoin4444 Digital Platform
+```bash
+export FILE_ENCRYPTOR_KEY=0000000000000000000000000000000000000000000000000000000000000000
+cargo run -- encrypt input.txt output.enc
+cargo run -- decrypt output.enc recovered.txt
+```
 
-## 📂 Structure
-The project is organized into a modular structure to ensure clarity and ease of development.
+## Validation
 
-## 👨‍💻 Author
-**Skyler Blue Spillers**
-*Professional Chess Player & Software Engineer*
+```bash
+cargo test
+cargo build --release
+```
 
----
-*Powered by SkyCoin4444*
+The test suite covers byte-preserving round trips, tamper detection, and key-format validation. The release build has been compiled successfully in the current audit environment.
+
+## Scope and limitations
+
+The utility does not provide password-based key derivation, a hardware-backed keystore, key rotation, secure deletion, streaming encryption for very large files, metadata authentication beyond the ciphertext, or a production key-management service. Environment variables can be exposed by misconfigured process tooling; production deployments should use an approved secret manager. Do not treat this repository as proof of compliance or audited cryptographic security.
+
+The previous “professional-grade,” “scalable,” and “cloud-native” claims were removed because the implementation is intentionally small and local.
+
+## Dependency provenance
+
+The cryptographic implementation uses the `aes-gcm` Rust crate from crates.io under its published license. No source code was copied from an external repository for this upgrade.
