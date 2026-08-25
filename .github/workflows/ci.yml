@@ -1,9 +1,55 @@
-name: CI
-on: [push]
+name: file-encryptor-ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  verify:
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - run: cargo test
+        with:
+          components: rustfmt, clippy
+      - uses: taiki-e/install-action@cargo-audit
+      - name: Format
+        run: cargo fmt --all -- --check
+      - name: Clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
+      - name: Tests
+        run: cargo test --locked --all-targets
+      - name: Dependency audit
+        run: cargo audit
+      - name: Release build
+        run: cargo build --locked --release
+      - name: CLI round-trip smoke
+        env:
+          FILE_ENCRYPTOR_KEY: '000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f'
+        run: |
+          printf 'sky-file-crypto-smoke' > /tmp/plain.txt
+          ./target/release/file-encryptor encrypt /tmp/plain.txt /tmp/plain.skyenc
+          ./target/release/file-encryptor decrypt /tmp/plain.skyenc /tmp/plain.out
+          cmp /tmp/plain.txt /tmp/plain.out
+      - name: Build image
+        run: docker build -t sky-file-crypto:${{ github.sha }} .
+      - name: Verify non-root image
+        run: test "$(docker run --rm --entrypoint /usr/bin/id sky-file-crypto:${{ github.sha }} -u)" != "0"
+      - name: Container CLI smoke
+        run: |
+          mkdir -p /tmp/sky-file-crypto
+          chmod 777 /tmp/sky-file-crypto
+          printf 'container-smoke' > /tmp/sky-file-crypto/plain.txt
+          chmod 666 /tmp/sky-file-crypto/plain.txt
+          docker run --rm \
+            -e FILE_ENCRYPTOR_KEY=000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f \
+            -v /tmp/sky-file-crypto:/data \
+            sky-file-crypto:${{ github.sha }} encrypt /data/plain.txt /data/plain.skyenc
+          docker run --rm \
+            -e FILE_ENCRYPTOR_KEY=000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f \
+            -v /tmp/sky-file-crypto:/data \
+            sky-file-crypto:${{ github.sha }} decrypt /data/plain.skyenc /data/plain.out
+          cmp /tmp/sky-file-crypto/plain.txt /tmp/sky-file-crypto/plain.out
