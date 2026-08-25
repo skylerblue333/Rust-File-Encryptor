@@ -87,7 +87,11 @@ fn parse_key(raw: &str) -> Result<[u8; 32], String> {
         return Err("key must contain exactly 64 hexadecimal characters".to_owned());
     }
     let mut key = [0u8; 32];
-    for (index, pair) in raw.as_bytes().chunks_exact(2).enumerate() {
+    let (pairs, remainder) = raw.as_bytes().as_chunks::<2>();
+    if !remainder.is_empty() {
+        return Err("key must contain exactly 64 hexadecimal characters".to_owned());
+    }
+    for (index, pair) in pairs.iter().enumerate() {
         let text = std::str::from_utf8(pair).map_err(|_| "key is not valid UTF-8".to_owned())?;
         key[index] =
             u8::from_str_radix(text, 16).map_err(|_| "key must be hexadecimal".to_owned())?;
