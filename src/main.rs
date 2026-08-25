@@ -17,7 +17,10 @@ const MAX_INPUT_BYTES: u64 = 64 * 1024 * 1024;
 fn read_bounded(path: &Path) -> io::Result<Vec<u8>> {
     let metadata = fs::metadata(path)?;
     if !metadata.is_file() {
-        return Err(io::Error::new(io::ErrorKind::InvalidInput, "input must be a regular file"));
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "input must be a regular file",
+        ));
     }
     if metadata.len() > MAX_INPUT_BYTES {
         return Err(io::Error::new(
@@ -48,7 +51,10 @@ fn decrypt_file(input: &Path, output: &Path, key: &[u8; 32]) -> io::Result<()> {
     let encoded = read_bounded(input)?;
     let minimum_len = MAGIC.len() + NONCE_LEN + TAG_LEN;
     if encoded.len() < minimum_len {
-        return Err(io::Error::new(io::ErrorKind::InvalidData, "encrypted file is truncated"));
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidData,
+            "encrypted file is truncated",
+        ));
     }
     if &encoded[..MAGIC.len()] != MAGIC {
         return Err(io::Error::new(
@@ -83,7 +89,8 @@ fn parse_key(raw: &str) -> Result<[u8; 32], String> {
     let mut key = [0u8; 32];
     for (index, pair) in raw.as_bytes().chunks_exact(2).enumerate() {
         let text = std::str::from_utf8(pair).map_err(|_| "key is not valid UTF-8".to_owned())?;
-        key[index] = u8::from_str_radix(text, 16).map_err(|_| "key must be hexadecimal".to_owned())?;
+        key[index] =
+            u8::from_str_radix(text, 16).map_err(|_| "key must be hexadecimal".to_owned())?;
     }
     Ok(key)
 }
@@ -96,7 +103,8 @@ fn run(args: &[String]) -> Result<(), String> {
     if args.len() != 4 {
         return Err(usage().to_owned());
     }
-    let key_text = env::var("FILE_ENCRYPTOR_KEY").map_err(|_| "FILE_ENCRYPTOR_KEY is required".to_owned())?;
+    let key_text =
+        env::var("FILE_ENCRYPTOR_KEY").map_err(|_| "FILE_ENCRYPTOR_KEY is required".to_owned())?;
     let key = parse_key(&key_text)?;
     let input = Path::new(&args[2]);
     let output = Path::new(&args[3]);
